@@ -18,4 +18,4 @@ const subSectionSchema = new mongoose.Schema({
         default:"not-specified"
     }
 })
-module.exports = new mongoose.model("SubSection",subSectionSchema)
+module.exports =  mongoose.model("SubSection",subSectionSchema)

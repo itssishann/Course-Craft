@@ -52,7 +52,7 @@ const updateSubSectionSchema = z.object({
     title: z.string().min(1, ' Title is required'),
     description: z.string().min(1, 'Description  is required'),
     sectionId:z.string().min(1,`Section Id is required`),
-    subSectionId:z.string().min(5,`Section Id is required`),
+    subSectionId:z.string().min(5,`Sub section Id is required`),
 }) 
 const updateSubSection = async (req,res) => {
     try {

@@ -15,4 +15,4 @@ const profileSchema = new mongoose.Schema({
         trim:true
     }
 })
-module.exports = new mongoose.model("Profile",profileSchema)
+module.exports =  mongoose.model("Profile",profileSchema)

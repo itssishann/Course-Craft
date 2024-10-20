@@ -96,3 +96,43 @@ const getAllCourses = async (req,res)=>{
         })
     }
 }
+const getCourseDetails = async (req,res) => {
+    try {
+        const {courseId} = req.body
+        if( !courseId || courseId.length < 18){
+            return res.json({
+                success:false,
+                message:"Course Id is not valid"
+            })
+        }
+        const courseDetails = await Course.findById(courseId).populate({
+                    path: "instructor",
+                    populate: {
+                      path: "additionalDetails",
+                    },
+                  })
+                  .populate("category")
+                  .populate("ratingAndReviews")
+                  .populate({
+                    path: "courseContent",
+                    populate: {
+                      path: "subSection",
+                      select: "-videoUrl",
+                    },
+                  })
+                  .exec()
+                  if (!courseDetails) {
+                    return res.status(404).json({
+                      success: false,
+                      message: `Could not find course with this id: ${courseId}`,
+                    })
+                  }
+       
+    } catch (error) {
+        console.log(`Error while getting course Details-> `,error)
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error."
+        })
+    }
+}

@@ -42,6 +42,77 @@ const getAllCategory = async(req,res)=>{
         })
     }
 }
+const categoryPageDetails = async (req,res) => {
+    try {
+        const { categoryId } = req.body
+        if(!categoryId || categoryId.length < 18 ){
+            return res.status(400).json({
+                success:false,
+                message:"Category id is required!"
+            })
+        }
+      const selectedCategory = await Category.findById(categoryId)
+        .populate({
+          path: "Course",
+          match: { status: "Published" },
+          populate: "ratingAndReviews",
+        })
+        .exec()
+  
+      if (!selectedCategory) {
+        console.log("Category not found.")
+        return res.json({ success: false, message: "Category not found" })
+      }
+      // no courses found fpr the id return the response no course
+      if (selectedCategory.Course.length === 0) {
+        console.log("No courses found for the selected category.")
+        return res.json({
+          success: false,
+          message: "No courses found for the selected category.",
+        })
+      }
+  
+      // Get courses for other categories ..
+      const categoriesExceptSelected = await Category.find({
+        _id: { $ne: categoryId },
+      })
+      let differentCategory = await Category.findOne(
+        categoriesExceptSelected[getRandomInt(categoriesExceptSelected.length)]
+          ._id
+      )
+        .populate({
+          path: "Course",
+          match: { status: "Published" },
+        })
+        .exec()
+      const allCategories = await Category.find()
+        .populate({
+          path: "Course",
+          match: { status: "Published" },
+          populate: {
+            path: "instructor",
+        },
+        })
+        .exec()
+      const allCourses = allCategories.flatMap((category) => category.Course)
+      const mostSellingCourses = allCourses
+        .sort((a, b) => b.sold - a.sold)
+        .slice(0, 10)
+      res.json({
+        success: true,
+        data: {
+          selectedCategory,
+          differentCategory,
+          mostSellingCourses,
+        },
+      })
+    } catch (error) {
+        return res.status(500).json({
+            success:false,
+            message:"Internal Server Error"
+        })
+    }
+}
 module.exports={
-    getAllCategory,createCategory
+    getAllCategory,createCategory,categoryPageDetails
 }

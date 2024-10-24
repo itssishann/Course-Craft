@@ -23,7 +23,9 @@ const createSection = async (req,res) => {
             }
 
         },{new:true}
-        ).populate("Section").populate("SubSection").exec()
+        ).populate({
+           path:"courseContent"
+        }).exec()
         return res.json({
             success:true,
             message:"Course Section added!",

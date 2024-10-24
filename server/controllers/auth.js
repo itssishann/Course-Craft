@@ -6,62 +6,63 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const Profile = require("../models/Profile")
 const mailSender = require("../utils/mailSender")
+const otpTemplate = require("../mail/Templates/emailOTPTemplate")
+
 // sendOTP 
 // otp send when user try to register on course signup
 const otpSchema = z.object({
     email: z.string().email("Invalid email format"),
   });
-const sendOTP = async(req,res)=>{
-   
+  const sendOTP = async (req, res) => {
     try {
         const result = otpSchema.safeParse(req.body);
         if (!result.success) {
             return res.status(400).json({
-              success: false,
-              message: result.error.errors[0].message // Returns validation error
+                success: false,
+                message: result.error.errors
             });
-          }
-          const { email } = result.data; // Destructure after validation
-        const isUserExist = await User.findOne({email})
-        if(isUserExist){
+        }
+   
+        const { email } = result.data;
+        const isUserExist = await User.findOne({ email });
+        if (isUserExist) {
             return res.status(401).json({
-                success:false,
-                message:"User already registered!"
-            })
+                success: false,
+                message: "User already registered!"
+            });
         }
-        let otp = otpGenerator.generate(6,{
-            upperCaseAlphabets:false,
-            lowerCaseAlphabets:false,
-            specialChars:false
-        })
-        console.log("OTP is -> ",otp)
-        // check otp unique or not
-        let isOTPExist = await Otp.findOne({otp:otp})
-        // if otp exist then genrate new otp till unique otp not recived
-        while(isOTPExist){
-             otp = otpGenerator.generate(6,{
-                upperCaseAlphabets:false,
-                lowerCaseAlphabets:false,
-                specialChars:false
-            })
-            isOTPExist = await Otp.findOne({otp:otp})
-            const otpPayload = {email,otp}
-            // otp store in database
-            const otpBody = await Otp.create(otpPayload)
-            console.log("Otp entry is-> ",otpBody)
-            return res.json({
-                success:true,
-                message:"Otp sent successfully!"
-            })
-        }
+   
+        let otp;
+        let isOTPExist;
+   
+        // Generate unique OTP
+        do {
+            otp = otpGenerator.generate(6, {
+                upperCaseAlphabets: false,
+                lowerCaseAlphabets: false,
+                specialChars: false
+            });
+            isOTPExist = await Otp.findOne({ otp });
+        } while (isOTPExist);
+   
+        const otpPayload = { email, otp };
+        await Otp.create(otpPayload);  // Store the OTP after ensuring it's unique
+   
+        // Send OTP Email
+        // await mailSender(email, "OTP Verification", otpTemplate(otp));
+   
+        return res.json({
+            success: true,
+            message: "Otp sent successfully!"
+        });
+   
     } catch (error) {
-        console.log("Otp Error -> ",error)
+        console.log("Otp Error -> ", error);
         return res.status(500).json({
-            success:false,
-            message:error
-        })
-    }
-}
+            success: false,
+            message: error
+        });
+    }}
 //signup
 const signUpSchema = z.object({
     email: z.string().email("Invalid email format!"),
@@ -77,7 +78,7 @@ const signUp = async(req,res)=>{
         if (!result.success) {
             return res.status(400).json({
               success: false,
-              message: result.error.errors[0].message // Returns validation error
+              message: result.error.errors // Returns validation error
             });
           }
           const{email,firstName,lastName,password,confirmPassword,otp} = result.data
@@ -99,13 +100,13 @@ const signUp = async(req,res)=>{
             console.log("Recent otp is -> ",recentOtp)
 
             // validateOTP
-            if (response.length === 0) {
+            if (recentOtp.length === 0) {
                 // OTP not found for the email
                 return res.status(400).json({
                   success: false,
                   message: "The OTP is not valid",
                 })
-              } else if (otp !== response[0].otp) {
+              } else if (otp !== recentOtp[0].otp) {
                 // Invalid OTP
                 return res.status(400).json({
                   success: false,
@@ -153,7 +154,7 @@ const login = async(req,res)=>{
         if(!isParsedLogin.success){
             return res.status(400).json({
                 success:false,
-                message: isParsedLogin.error.errors[0].message // Returns validation error
+                message: isParsedLogin.error.errors// Returns validation error
             })
         }
         const {email,password} = isParsedLogin.data
@@ -201,7 +202,28 @@ const login = async(req,res)=>{
         })
     }
 }
+const logout = (req, res) => {
+  try {
+      // Clear the token cookie by setting its expiration date to the past
+      res.cookie("token", "", {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          expires: new Date(0), // Set the expiration date to the past
+      });
 
+      return res.status(200).json({
+          success: true,
+          message: "User logged out successfully!"
+      });
+  } catch (error) {
+      console.log("Logout Error -> ", error);
+      return res.status(500).json({
+          success: false,
+          message: "Problem while logging out the user!"
+      });
+  }
+};
 //change-password
 const changePasswordSchema = z.object({
     oldPassword: z.string().min(6, "Old password should be at least 6 characters long"), // Adjust min length based on your requirements
@@ -276,5 +298,5 @@ const changePasswordSchema = z.object({
   };
 
 module.exports={
-    sendOTP,signUp,changePassword
+    sendOTP,signUp,changePassword,login,logout
 }

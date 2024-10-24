@@ -2,10 +2,11 @@ const SubSection = require("../models/subSection")
 const Section = require("../models/Section")
 const z = require("zod");
 const { uploadImagetoCloudinary } = require("../utils/imageUploader");
+const { convertSecondsToDuration } = require("../utils/secToDuration");
 const subSectionSchema = z.object({
     title: z.string(2,"Title is required"),
     sectionId: z.string(2,"Section id is required"),
-    timeDuration: z.string(2,"Duration is required."),
+    // timeDuration: z.string(2,"Duration is required.").optional(),
     description: z.string(2,"Description is required")
     // videoUrl: z.string().optional(), // Change to z.string().nonempty() if you want it to 
 });
@@ -20,14 +21,21 @@ const createSubSection = async (req,res) => {
                 error:result.error.errors
             })
         }
-        const {title,sectionId,timeDuration,description} = result.data
-        const uploadDetails = uploadImagetoCloudinary(video,process.env.CLOUDINARY_FOLDER)
+       
+        const {title,sectionId,description} = result.data
+        const uploadDetails = await uploadImagetoCloudinary(video,process.env.CLOUDINARY_FOLDER)
+        const duration = convertSecondsToDuration(uploadDetails.duration)
         const subSectionDetails = await SubSection.create({
             title,
-            timeDuration,
+            timeDuration:duration,
             description,
             videoUrl:uploadDetails.secure_url
         })
+
+        console.log("Video file -> ",video)
+        console.log("Uploaded Video file -> ",uploadDetails)
+        console.log("Duration -> ",duration)
+
         const updatedSection = await Section.findByIdAndUpdate(sectionId,{
             $push:{
                 subSection:subSectionDetails._id

@@ -79,7 +79,7 @@ const createRating = async (req,res) => {
 }
 const getAverageRating = async (req,res) => {
     try {
-        const {courseId} = req
+        const {courseId} = req.body
         if( !courseId || courseId.length<18){
             return res.status(400).json({
                 success:false,
@@ -132,6 +132,12 @@ const getAllRatingAndReview = async (req,res) => {
             path:"course",
             select:"courseName"
         })
+        if(reviews.length<1){
+            return res.json({
+                success:true,
+                message:"No reviews found."
+            })
+        }
         return res.json({
             success:true,
             message:"Reviews fetch success",

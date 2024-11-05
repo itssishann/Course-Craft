@@ -34,7 +34,7 @@ router.post("/addSubSection", auth, isInstructor, subSectionController.createSub
 // Category Protected route  for Admin use only
 router.post("/createCategory", auth, isAdmin,categoryController.createCategory)
 router.get("/showAllCategories", categoryController.getAllCategory)
-router.post("/getCategoryPageDetails", categoryController.categoryPageDetails)
+router.get("/categoryPageDetails", categoryController.categoryPageDetails)
 
 
 // ********************************************************************************************************

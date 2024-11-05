@@ -241,7 +241,7 @@ const changePasswordSchema = z.object({
       if (!result.success) {
         return res.status(400).json({
           success: false,
-          message: result.error.errors[0].message,
+          message: result.error.errors,
         });
       }
   

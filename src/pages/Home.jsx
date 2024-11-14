@@ -6,9 +6,15 @@ import CTAButton from '../components/core/Homepage/CTAButton';
 import BannerVideo from"../assets/images/banner-student-video.mp4"
 import CodeBlocks from '../components/core/Homepage/CodeBlocks';
 import Footer from '../components/common/Footer';
+import TimelineSection from '../components/core/Homepage/TimelineSection';
+import LearningSection from '../components/core/Homepage/LearningSection';
+import InstructorSection from '../components/core/Homepage/InstructorSection';
+import ExploreMore from '../components/core/Homepage/ExploreMore';
+import Navbar from '../components/common/Navbar';
 const Home = () => {
   return (
     <div>
+      {/* <Navbar/> */}
         {/* Section 1 */}
         <div className='relative mx-auto flex flex-col justify-between max-w-maxContent text-white items-center w-11/12'>
         <Link to={"/signup"}>
@@ -66,7 +72,7 @@ const Home = () => {
               active: false,
             }}
             codeColor={"text-yellow-25"}
-            codeBlock={`<!DOCTYPE html>\n <html lang="en">\n<head>\n<title>Home Page</title>\n</head>\n<body>\n<h1><a href="/">Welcome Student</a></h1>\n<nav> <a href="/one">One</a> <a href="/two">Two</a> <a href="/three">Three</a>\n</nav>\n</body>`}
+            codeBlock={`<!DOCTYPE html>\n <html lang="en">\n<head>\n<title>Home Page</title>\n</head>\n<body>\n<h1><a href="/">Welcome Student</a></h1>\n<nav> <a href="/dashboard">Dashboard</a> <a href="/course">Course</a> <a href="/contact">Contact Teacher.</a>\n</nav>\n</body>`}
             gradientBackground={<div className="codeblock1 absolute"></div>}
           />
 
@@ -96,8 +102,35 @@ const Home = () => {
             codeBlock={`const express = require('express');\nconst app = express();\nconst PORT = 3000;\n\napp.get('/', (req, res) => {\n  res.json({ message: "Welcome Student"})\n\napp.listen(PORT, () => {\n  console.log(\`Server is running on localhost:\${PORT}\`);\n});`}
             gradientBackground={<div className="codeblock2 absolute"></div>}
           />
+          <ExploreMore/>
         </div>
         {/* Section 3 */}
+            <div className="bg-pure-greys-5 text-richblack-700">
+              <div className="homepage_bg h-[310px]">
+                    <div className="w-11/12  max-w-maxContent flex flex-col items-center  justify-between gap-4 mx-auto">
+                    <div className="h-[150px]"></div>
+                      <div className="flex lg:mt-20 flex-row gap-7 text-white">
+                        <CTAButton active={true} linkto={"/signup"}>
+                        <div className="flex items-center gap-2">
+                        Explore Full Catalog 
+                        <FaArrowRight/>
+                        </div>
+                        </CTAButton>
+                        <CTAButton active={false} linkto={"/signup"}>Learn more</CTAButton>
+                      </div>
+                    </div>
+              </div>
+              <div className="flex flex-row w-11/12 max-w-maxContent  justify-center items-center  gap-4 py-6 px-3 m-auto mt-6"><div className="w-[50%] text-richblack-900 font-bold text-4xl">Get the skills you need for a <HighlightText text={"job that is in demand"}></HighlightText></div><div className=" w-[50%] flex flex-col items-start gap-3 mt-9 "><p className=" text-richblack-700 py-10 text-lg font-semibold">In today’s world, Course Craft goes beyond just professional skills. To remain competitive, specialists need a blend of knowledge, adaptability, and innovative thinking.</p><a href="/login"><div className=" rounded-md font-semibold p-3 py-3 px-6
+         bg-yellow-50 text-black
+           hover:scale-105 transition-all duration-200 ">Learn More</div></a></div></div>
+              <TimelineSection/>
+              <LearningSection/>
+            </div>
+            <div className="flex w-11/12 flex-col gap-4 bg-richblack-900 mx-auto max-w-maxContent items-center">
+            <InstructorSection/>
+            <div className="text-center font-semibold text-4xl">Review from Students.</div>
+            {/* Review Sliders*/}
+            </div>
         {/* Footer */}
         <Footer/>
         </div>

@@ -70,7 +70,8 @@ const signUpSchema = z.object({
   lastName: z.string().min(2, "Last name should be at least 2 characters long"),
   password: z.string().min(6, "Password should be at least 6 characters long"), // Consider adding min length for security
   confirmPassword: z.string().min(6, "Confirm password should be at least 6 characters long"), // Same as password
-  otp: z.string().length(6, "OTP should be exactly 6 characters long")
+  otp: z.string().length(6, "OTP should be exactly 6 characters long"),
+  accountType:z.string().optional()
 })
 const signUp = async(req,res)=>{
     try {
@@ -81,7 +82,7 @@ const signUp = async(req,res)=>{
               message: result.error.errors // Returns validation error
             });
           }
-          const{email,firstName,lastName,password,confirmPassword,otp} = result.data
+          const{email,firstName,lastName,password,confirmPassword,otp,accountType} = result.data
           const isUserExist = await User.findOne({email})
           if(isUserExist){
             return res.status(401).json({
@@ -97,7 +98,6 @@ const signUp = async(req,res)=>{
           }
         //  recent otp genrated for the email
             const recentOtp = await Otp.find({email}).sort({createdAt: -1}).limit(1);
-            console.log("Recent otp is -> ",recentOtp)
 
             // validateOTP
             if (recentOtp.length === 0) {
@@ -121,18 +121,24 @@ const signUp = async(req,res)=>{
             contactNumber:null,
 
           })
+          if(accountType=="Admin"){
+            return res.status(401).json({
+              success:false,
+              message:"Internal Server Error!"
+            })
+          }
           const user= await User.create({
             firstName,
             lastName,
             email,
             additionalDetails:profileDetails._id,
             password:hashPassword,
-            image:`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${firstName}+${lastName}`
+            image:`https://api.dicebear.com/9.x/fun-emoji/svg?seed=${firstName}+${lastName}`,
+            accountType
           })
           return res.json({
             success:true,
             message:"User signup success!",
-            user
           })
     } catch (error) {
         console.log("Signup Error -> ",error)
@@ -155,6 +161,7 @@ const login = async(req,res)=>{
             return res.status(400).json({
                 success:false,
                 message: isParsedLogin.error.errors// Returns validation error
+                
             })
         }
         const {email,password} = isParsedLogin.data
@@ -188,11 +195,13 @@ const login = async(req,res)=>{
             // Alternatively, you could use maxAge for the same result:
             // maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
           };
-          
+          const user = isUserExist.toObject() // Convert mongoose document to plain JavaScript object
+          delete user.password // Exclude the password
         res.cookie("token",token,options).json({
             success:true,
             token,
-            message:"user logged in!"
+            message:"user logged in!",
+            user
         })
     } catch (error) {
         console.log("Login Error -> ",error)

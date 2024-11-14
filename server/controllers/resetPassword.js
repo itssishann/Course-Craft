@@ -4,9 +4,9 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const clientURL = process.env.CLIENT_URL;
 
-const TOKEN_EXPIRATION_TIME = 3600000; // 1 hour
+const TOKEN_EXPIRATION_TIME = 360000; //0.1hour i.e 6 minutes expiry
 
-exports.resetPasswordToken = async (req, res) => {
+const resetPasswordToken = async (req, res) => {
     try {
         const email = req.body.email;
         if (!email || !validateEmail(email)) {
@@ -20,7 +20,7 @@ exports.resetPasswordToken = async (req, res) => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: `Email ${email} is not registered. Please enter a valid email.`,
+                message: `Email ${email} is not correct or internal server error!.`,
             });
         }
 
@@ -36,20 +36,22 @@ exports.resetPasswordToken = async (req, res) => {
         );
 
         const url = `${clientURL}/update-password/${token}`;
-
+        const date = new Date()
+		const currentYear = date.getFullYear()
         await mailSender(
             email,
             "Password Reset Request",
             `
             <html>
                 <body>
-                    <h2>Password Reset Request</h2>
+                    <h2>Password Reset Request..</h2>
                     <p>Hi there,</p>
                     <p>We received a request to reset your password. You can reset your password by clicking the link below:</p>
                     <p><a href="${url}" style="color: #1a73e8; text-decoration: none;">Reset Your Password</a></p>
                     <p>If you didn't request a password reset, please ignore this email.</p>
                     <p>Thank you!</p>
-                    <p>Best regards,<br>Your Team</p>
+                    <p>Best regards,<br>Course Craft</p>
+                    <footer>© ${currentYear} Course Craft. All rights reserved.</footer>
                 </body>
             </html>
             `
@@ -69,7 +71,7 @@ exports.resetPasswordToken = async (req, res) => {
     }
 };
 
-exports.resetPassword = async (req, res) => {
+const resetPassword = async (req, res) => {
     try {
         const { password, confirmPassword, token } = req.body;
         if (!password || !confirmPassword) {
@@ -85,7 +87,12 @@ exports.resetPassword = async (req, res) => {
                 message: "Password and confirm password do not match.",
             });
         }
-
+        if(!token){
+            return res.status(400).json({
+                success:false,
+                message:"Token not Received!"
+            })
+        }
         const userDetails = await User.findOne({ token });
         if (!userDetails) {
             return res.status(400).json({
@@ -122,8 +129,13 @@ exports.resetPassword = async (req, res) => {
     }
 };
 
+
 // Simple email validation function
 function validateEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
+}
+
+module.exports={
+    resetPassword,resetPasswordToken
 }

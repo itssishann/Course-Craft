@@ -9,7 +9,7 @@ const mailSender = async(email,title,body)=>{
         }
        }) 
        let info = await transporter.sendMail({
-            from:"Admin CourseCraft",
+            from:"Admin Course Craft",
             to:`${email}`,
             subject:`${title}`,
             html:`${body}`

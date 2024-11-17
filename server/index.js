@@ -8,6 +8,7 @@ const {cloudinaryConnect} = require("./config/cloudinary")
 const authRoutes = require("./routes/User")
 const profileRoutes = require("./routes/Profile")
 const courseRoutes = require("./routes/Course")
+const contactRoutes = require("./routes/Contact")
 const app = express()
 app.use(cors())
 app.use(cookieParser())
@@ -28,6 +29,7 @@ app.get("/",(req,res)=>{
 app.use("/api/v1/auth",authRoutes)
 app.use("/api/v1/profile",profileRoutes)
 app.use("/api/v1/course", courseRoutes);
+app.use("/api/v1/reach", contactRoutes);
 const PORT = process.env.PORT
 app.listen(PORT,()=>{
     console.log("Server started at port -> ",PORT)

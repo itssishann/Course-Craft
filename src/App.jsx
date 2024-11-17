@@ -12,6 +12,8 @@ import VerifyEmail from './pages/VerifyEmail'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import LoginForm from './components/core/auth/LoginForm'
+import About from './pages/About'
+import ContactForm from './components/core/contactPage/ContactForm'
 const App = () => {
   return (
      <div className="w-screen min-h-screen text-white bg-richblack-900 flex flex-col font-inter">
@@ -35,6 +37,22 @@ const App = () => {
           }
         />
 
+<Route
+          path="/about"
+          element={
+            
+              <About />
+            
+          }
+        />
+<Route
+          path="/contact"
+          element={
+            
+              <ContactForm />
+            
+          }
+        />
      <Route
           path="forgot-password"
           element={

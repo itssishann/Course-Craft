@@ -26,7 +26,9 @@ const ContactUsForm = () => {
       )
       console.log("Email Res >> ", res)
       setLoading(false)
+      toast.success("We have received your request!")
     } catch (error) {
+      toast.error(error.message ||"Something Went Wrong.")
       console.log("Error Message >>  ", error.message)
       setLoading(false)
     }
@@ -43,9 +45,7 @@ const ContactUsForm = () => {
       })
     }
   }, [reset, isSubmitSuccessful])
-if(isSubmitSuccessful){
-  toast.success("We have received your request!")
-}
+
   return (
     <form
       className="flex flex-col gap-7"
@@ -140,7 +140,7 @@ if(isSubmitSuccessful){
                   value: true,
                   message: "Please enter your Phone Number.",
                 },
-                maxLength: { value: 12, message: "Invalid Phone Number" },
+                maxLength: { value: 12, message: "Invalid 12 Digits Phone Number for US" },
                 minLength: { value: 10, message: "Invalid Phone Number" },
               })}
             />

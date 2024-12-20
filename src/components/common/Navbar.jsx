@@ -47,10 +47,10 @@ const Navbar = () => {
             {NavbarLinks.map((ele, i) => (
               <li key={i}>
                 {ele.title === "Catalog" ? (
-                  <div className='flex relative items-center gap-2 group z-50'>
+                  <div className='flex relative group items-center gap-2 group z-50'>
                     <p>
                       <span className='flex items-center cursor-pointer gap-2'>
-                        {ele.title} <IoChevronDownSharp className='ml-1 hover:rotate-180 transition-all duration-200'/>
+                        {ele.title} <IoChevronDownSharp className='ml-1 arrowBTN group-hover:rotate-180 transition-transform duration-500'/>
                       </span>
                     </p>
                     <div className="invisible absolute left-[50%] translate-x-[-45%] translate-y-[70%] flex flex-col rounded-md bg-richblack-25 text-richblack-800 p-4 opacity-0 duration-200 group-hover:opacity-100 w-40 lg:w-[300px] group-hover:visible">

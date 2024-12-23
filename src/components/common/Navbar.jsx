@@ -35,7 +35,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className=' h-14 border-b-2 items-center justify-center border-richblack-400 flex '>
+    <div className=' h-14 border-b-2 items-center justify-center border=-[1px] border-richblack-700 flex '>
       <div className="flex w-11/12 max-w-maxContent items-center  justify-between">
         <Link to={"/"}>
           <img src={Logo} loading='lazy' className='h-14 w-[11rem] object-contain' alt='Course Craft Logo'/>
@@ -81,7 +81,7 @@ const Navbar = () => {
           {user && user.accountType !== "Instructor" && (
             <Link to={"/dashboard/cart"} className='relative'>
               <span className='flex items-center justify-center'>
-                Add to Cart <GrCart className='text-lg'/>
+                 <GrCart className='text-2xl'/>
               </span>
               {totalItems > 0 && <span>{totalItems}</span>}
             </Link>

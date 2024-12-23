@@ -14,6 +14,11 @@ import Signup from './pages/Signup'
 import LoginForm from './components/core/auth/LoginForm'
 import About from './pages/About'
 import ContactForm from './components/core/contactPage/ContactForm'
+import Loader from './components/common/Loader'
+import Dashboard from './pages/Dashboard'
+import PrivateRoute from './components/core/auth/PrivateRoute'
+import MyProfile from './components/core/Dashboard/MyProfile'
+import Settings from './components/core/Dashboard/Settings/Settings'
 const App = () => {
   return (
      <div className="w-screen min-h-screen text-white bg-richblack-900 flex flex-col font-inter">
@@ -77,7 +82,19 @@ const App = () => {
             </OpenRoute>
           }
         />
+        
+    <Route 
+      element={
+        <PrivateRoute>
+          <Dashboard />
+        </PrivateRoute>
+      }
+    >
+     <Route path='/dashboard/my-profile' element={<MyProfile/>}></Route>
+     <Route path="dashboard/Settings" element={<Settings />} />
+     </Route>
      <Route path='/*' element={<Error/>}></Route>
+     {/* <Route path='/test' element={<Loader/>}></Route> */}
      </Routes>
     </div>
   )

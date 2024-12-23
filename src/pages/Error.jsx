@@ -13,10 +13,10 @@ const Error = () => {
         Sorry, the page you are looking for doesn't exist or has been moved.
       </p>
 
-      <div className="flex group gap-4">
+      <div className="flex  gap-4">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center px-4 py-2  bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
+          className="flex group items-center px-4 py-2  bg-gray-800 text-white rounded-md hover:bg-gray-700 transition"
         >
           <FaArrowLeft className="mr-2 group-hover:-translate-x-3 transition-all duration-200" />
           Go Back

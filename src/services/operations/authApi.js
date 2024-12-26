@@ -19,15 +19,15 @@ const {
 export function sendOtp(email, navigate) {
   return async (dispatch) => {
     // Get the OTP expiry time from localStorage
-    const otpExpiryTime = localStorage.getItem("otpEmailWaitTime");
+    // const otpExpiryTime = localStorage.getItem("otpEmailWaitTime");
 
     // If OTP expiry time exists, check if it's passed
-    if (otpExpiryTime && Date.now() < otpExpiryTime) {
-      const remainingTime = otpExpiryTime - Date.now();
-      const minutes = Math.floor(remainingTime / 60000);
-      toast.error(`Please wait ${minutes}m before requesting another OTP.`);
-      return;
-    }
+    // if (otpExpiryTime && Date.now() < otpExpiryTime) {
+    //   const remainingTime = otpExpiryTime - Date.now();
+    //   const minutes = Math.floor(remainingTime / 60000);
+    //   toast.error(`Please wait ${minutes}m before requesting another OTP.`);
+    //   return;
+    // }
 
     dispatch(setLoading(true));
 
@@ -40,14 +40,20 @@ export function sendOtp(email, navigate) {
         success: (response) => {
           // Check if response indicates success
           if (response.data.success) {
-            localStorage.setItem("otpEmailWaitTime", Date.now() + 5 * 60 * 1000);
             navigate("/verify-email");
             return "OTP Sent Successfully!";
           } else {
             throw new Error(response.data.message || "Failed to send OTP");
           }
         },
-        error: (err) => err.message || "Failed to send OTP",
+        error: (err) => {
+          // Parse and return a meaningful error message
+          if (err.response && err.response.data && err.response.data.message) {
+            return err.response.data.message; // Show the message from the server
+          }
+          return err.message || "Failed to send OTP"; // Fallback to a generic message
+        },
+
       },
       {
         // Optional toast options
@@ -92,12 +98,13 @@ export function signUp(
         throw new Error(response.data.message)
       }
       toast.success("Signup Successful")
-      localStorage.removeItem("otpEmailWaitTime")
-      localStorage.removeItem("email-expiry")
+     
       navigate("/login")
     } catch (error) {
       console.log("Signup Err>> ", error)
-      toast.error("Wrong OTP!")
+      const errorMessage =
+      error.response?.data?.message || error.message || "Something went wrong!";
+      toast.error(errorMessage||"Wrong OTP!")
       //in wrong otp make it to same verify otp page only
       navigate("/verify-email")
     }

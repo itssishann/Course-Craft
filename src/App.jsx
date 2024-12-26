@@ -19,6 +19,7 @@ import Dashboard from './pages/Dashboard'
 import PrivateRoute from './components/core/auth/PrivateRoute'
 import MyProfile from './components/core/Dashboard/MyProfile'
 import Settings from './components/core/Dashboard/Settings/Settings'
+import EnrolledCourses from './components/core/Dashboard/EnrolledCourses'
 const App = () => {
   return (
      <div className="w-screen min-h-screen text-white bg-richblack-900 flex flex-col font-inter">
@@ -91,10 +92,11 @@ const App = () => {
       }
     >
      <Route path='/dashboard/my-profile' element={<MyProfile/>}></Route>
+     <Route path='/dashboard/enrolled-courses' element={<EnrolledCourses/>}></Route>
      <Route path="dashboard/Settings" element={<Settings />} />
      </Route>
      <Route path='/*' element={<Error/>}></Route>
-     {/* <Route path='/test' element={<Loader/>}></Route> */}
+     {/* <Route path='/test' element={<EnrolledCourses/>}></Route> */}
      </Routes>
     </div>
   )

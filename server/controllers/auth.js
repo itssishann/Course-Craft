@@ -11,58 +11,94 @@ const otpTemplate = require("../mail/Templates/emailOTPTemplate")
 // sendOTP 
 // otp send when user try to register on course signup
 const otpSchema = z.object({
-    email: z.string().email("Invalid email format"),
-  });
-  const sendOTP = async (req, res) => {
-    try {
-        const result = otpSchema.safeParse(req.body);
-        if (!result.success) {
-            return res.status(400).json({
-                success: false,
-                message: result.error.errors
-            });
-        }
-   
-        const { email } = result.data;
-        const isUserExist = await User.findOne({ email });
-        if (isUserExist) {
-            return res.status(401).json({
-                success: false,
-                message: "User already registered!"
-            });
-        }
-   
-        let otp;
-        let isOTPExist;
-   
-        // Generate unique OTP
-        do {
-            otp = otpGenerator.generate(6, {
-                upperCaseAlphabets: false,
-                lowerCaseAlphabets: false,
-                specialChars: false
-            });
-            isOTPExist = await Otp.findOne({ otp });
-        } while (isOTPExist);
-   
-        const otpPayload = { email, otp };
-        await Otp.create(otpPayload);  // Store the OTP after ensuring it's unique
-   
-        // Send OTP Email
-        // await mailSender(email, "OTP Verification", otpTemplate(otp));
-   
-        return res.json({
-            success: true,
-            message: "Otp sent successfully!"
-        });
-   
-    } catch (error) {
-        console.log("Otp Error -> ", error);
-        return res.status(500).json({
-            success: false,
-            message: error
-        });
-    }}
+  email: z.string().email("Invalid email format"),
+});
+const sendOTP = async (req, res) => {
+  try {
+      const result = otpSchema.safeParse(req.body);
+      if (!result.success) {
+          return res.status(400).json({
+              success: false,
+              message: result.error.errors,
+          });
+      }
+
+      const { email } = result.data;
+
+      // Check if user is already registered
+      const isUserExist = await User.findOne({ email });
+      if (isUserExist) {
+          return res.status(401).json({
+              success: false,
+              message: "User already registered!",
+          });
+      }
+
+      // Find the OTP entry for this email
+      const otpEntry = await Otp.findOne({ email });
+
+      if (otpEntry) {
+          // Enforce the daily limit of 5 OTPs
+          const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+          const recentOTPs = await Otp.find({ email, createdAt: { $gte: oneDayAgo } });
+
+          if (recentOTPs.length >= 5) {
+              return res.status(429).json({
+                  success: false,
+                  message: "OTP limit exceeded for today. Try again tomorrow.",
+              });
+          }
+
+          // Enforce the 5-minute resend delay
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          if (otpEntry.createdAt > fiveMinutesAgo) {
+              return res.status(429).json({
+                  success: false,
+                  message: "Wait 5 minutes before requesting another OTP.",
+              });
+          }
+      }
+
+      // Generate unique OTP
+      let otp;
+      let isOTPExist;
+      do {
+          otp = otpGenerator.generate(6, {
+              upperCaseAlphabets: false,
+              lowerCaseAlphabets: false,
+              specialChars: false,
+          });
+          isOTPExist = await Otp.findOne({ otp });
+      } while (isOTPExist);
+
+      if (otpEntry) {
+        // Update the existing OTP entry
+        otpEntry.otp = otp;
+        otpEntry.createdAt = new Date();
+        otpEntry.attempts = 0; // Reset attempts to 0 when sending a new OTP
+        await otpEntry.save();
+    } else {
+        // Create a new or fresh OTP entry
+        const otpPayload = { email, otp, createdAt: new Date(), attempts: 0 };
+        await Otp.create(otpPayload);
+    }
+    
+
+      return res.json({
+          success: true,
+          message: "OTP sent successfully!",
+      });
+
+  } catch (error) {
+      console.log("OTP Error -> ", error);
+      return res.status(500).json({
+          success: false,
+          message: error.message,
+      });
+  }
+};
+
+
 //signup
 const signUpSchema = z.object({
     email: z.string().email("Invalid email format!"),
@@ -97,22 +133,44 @@ const signUp = async(req,res)=>{
                 })
           }
         //  recent otp genrated for the email
-            const recentOtp = await Otp.find({email}).sort({createdAt: -1}).limit(1);
+        const recentOtp = await Otp.find({ email }).sort({ createdAt: -1 }).limit(1);
 
-            // validateOTP
-            if (recentOtp.length === 0) {
-                // OTP not found for the email
-                return res.status(400).json({
-                  success: false,
-                  message: "The OTP is not valid",
-                })
-              } else if (otp !== recentOtp[0].otp) {
-                // Invalid OTP
-                return res.status(400).json({
-                  success: false,
-                  message: "The OTP is not valid",
-                })
-              }
+        if (recentOtp.length === 0) {
+            // OTP not found for the email
+            return res.status(400).json({
+                success: false,
+                message: "The OTP is not valid",
+            });
+        }
+        
+        // Extract the most recent OTP entry
+        const otpEntry = recentOtp[0];
+        
+        // Check if attempts have exceeded the limit
+        if (otpEntry.attempts >= 5) {
+            return res.status(429).json({
+                success: false,
+                message: "You have exceeded the maximum number of OTP attempts. Please request a new OTP.",
+            });
+        }
+        
+        // Validate the OTP
+        if (otp !== otpEntry.otp) {
+            // Increment the invalid attempt count
+            otpEntry.attempts += 1;
+            await otpEntry.save();
+        
+            return res.status(400).json({
+                success: false,
+                message: "The OTP is not valid",
+            });
+        }
+        
+        // OTP is valid, reset attempts and proceed with the verification process
+        otpEntry.attempts = 0; // Reset attempts after successful validation
+        await otpEntry.save();
+        
+        
           const hashPassword = await bcrypt.hash(password,10)
           const profileDetails = await Profile.create({
             gender:null,

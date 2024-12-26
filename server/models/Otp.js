@@ -2,19 +2,10 @@ const mongoose = require("mongoose")
 const mailSender = require("../utils/mailSender")
 const otpTemplate = require("../mail/Templates/emailOTPTemplate")
 const otpSchema = new mongoose.Schema({
-    email:{
-        type:String,
-        required:true
-    },
-    otp:{
-        type:String,
-        required:true
-    },
-    createdAt:{
-        type:Date,
-        default:Date.now(),
-        expires:5*60
-    }
+    email: { type: String, required: true },
+    otp: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now, expires: 300 }, // OTP expires in 5 minutes and automatically remove from database
+    attempts: { type: Number, default: 0 }, // Track the otp verification attempts or Track invalid attempts
 })
 const sendVerificationEmail = async(email,otp)=>{
         try {

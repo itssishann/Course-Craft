@@ -23,6 +23,9 @@ function VerifyEmail() {
 
   const handleVerifyAndSignup = (e) => {
     e.preventDefault();
+    if (!otp || otp.trim() === "") {
+      return;
+    }
     const {
       accountType,
       firstName,

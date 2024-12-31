@@ -4,7 +4,9 @@ import { useSelector } from 'react-redux'
 import { getUserEnrolledCourses } from '../../../services/operations/profileApi'
 import Loader from "../../common/Loader"
 import ProgressBar from '@ramonak/react-progress-bar'
+import { useNavigate } from 'react-router-dom'
 const EnrolledCourses = () => {
+  const navigate = useNavigate()
   const { token } = useSelector((state) => state.auth)
   const [enrolledCourses, setEnrolledCourses] = useState(null)
   const getEnrolledCourses = async () => {

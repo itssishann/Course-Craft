@@ -11,16 +11,21 @@ import UpdatePassword from './pages/UpdatePassword'
 import VerifyEmail from './pages/VerifyEmail'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import LoginForm from './components/core/auth/LoginForm'
+
 import About from './pages/About'
 import ContactForm from './components/core/contactPage/ContactForm'
-import Loader from './components/common/Loader'
+import { ACCOUNT_TYPE } from "./utils/constants";
 import Dashboard from './pages/Dashboard'
 import PrivateRoute from './components/core/auth/PrivateRoute'
 import MyProfile from './components/core/Dashboard/MyProfile'
 import Settings from './components/core/Dashboard/Settings/Settings'
 import EnrolledCourses from './components/core/Dashboard/EnrolledCourses'
+import { useSelector } from 'react-redux'
+import Cart from './components/core/Dashboard/Cart'
+import AddCourse from './components/core/Dashboard/AddCourse'
 const App = () => {
+  const { user } = useSelector((state) => state.profile)
+
   return (
      <div className="w-screen min-h-screen text-white bg-richblack-900 flex flex-col font-inter">
       <Navbar/>
@@ -92,8 +97,24 @@ const App = () => {
       }
     >
      <Route path='/dashboard/my-profile' element={<MyProfile/>}></Route>
-     <Route path='/dashboard/enrolled-courses' element={<EnrolledCourses/>}></Route>
      <Route path="dashboard/Settings" element={<Settings />} />
+     
+     {
+       user?.accountType === ACCOUNT_TYPE.STUDENT && (
+         <>
+          <Route path="dashboard/cart" element={<Cart />} />
+          <Route path='/dashboard/enrolled-courses' element={<EnrolledCourses/>}></Route>
+          </>
+        )
+      }
+     {
+       user?.accountType === ACCOUNT_TYPE.INSTRUCTOR && (
+         <>
+          <Route path="dashboard/add-course" element={<AddCourse />} />
+          
+          </>
+        )
+      }
      </Route>
      <Route path='/*' element={<Error/>}></Route>
      {/* <Route path='/test' element={<EnrolledCourses/>}></Route> */}

@@ -15,7 +15,7 @@ const AddCourse = () => {
         {/* Course Upload Tips Component  */}
         <div>
             <h2 className="mb-8 text-lg text-richblack-5">⚡Course Upload Tips</h2>
-            <ul className="ml-5 list-item list-disc space-y-4 text-xs text-richblack-5">
+            <ul className="ml-5 list-item list-disc space-y-4 text-md text-richblack-5">
             <li>Set the Course Price option or make it free.</li>
             <li>Standard size for the course thumbnail is 1024x576.</li>
             <li>Video section controls the course overview video.</li>

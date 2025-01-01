@@ -6,7 +6,7 @@ const Category = require("../models/Category");
 
 // Create course schema
 const courseSchema = z.object({
-    name: z.string().min(2, { message: "Name field is required and must be at least 2 characters." }),
+    courseName: z.string().min(2, { message: "Name field is required and must be at least 4 characters." }),
     courseDescription: z.string().min(10, { message: "Course description is required and must be at least 10 characters." }),
     whatYouWillLearn: z.string().min(10, { message: "What you will learn is required and must be at least 10 characters." }),
     category: z.string(),
@@ -27,7 +27,7 @@ const createCourse = async (req, res) => {
             });
         }
 
-        const { name, courseDescription, whatYouWillLearn, category, price, tags } = result.data; // Destructure validated data
+        const { courseName, courseDescription, whatYouWillLearn, category, price, tags } = result.data; // Destructure validated data
         const userId = req.user.id;
 
         const instructorDetails = await User.findById(userId);
@@ -52,7 +52,7 @@ const createCourse = async (req, res) => {
         // Create new course
         // const intPrice = parseFloat(price); // Ensure price is a float
         const newCourse = await Course.create({
-            courseName: name,
+            courseName,
             courseDescription,
             instructor: instructorDetails._id,
             whatYouWillLearn,

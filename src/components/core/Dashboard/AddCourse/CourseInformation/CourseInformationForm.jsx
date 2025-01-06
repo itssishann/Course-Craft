@@ -231,12 +231,12 @@ export default function CourseInformationForm() {
           id="courseCategory"
           className="form-style w-full"
         >
-          <option value="" disabled>
+          
             Choose a Category
-          </option>
+       
           {!loading &&
             courseCategories?.map((category, indx) => (
-              <option key={indx} value={category?._id}>
+              <option  key={indx} value={category?._id}>
                 {category?.name}
               </option>
             ))}
@@ -269,7 +269,7 @@ export default function CourseInformationForm() {
       {/* Benefits of the course */}
       <div className="flex flex-col space-y-2">
         <label className="text-sm text-richblack-5" htmlFor="courseBenefits">
-          Benefits of the course <sup className="text-pink-200">*</sup>
+          Benefits of the course <sup className="text-pink-200 z-10">*</sup>
         </label>
         <textarea
           id="courseBenefits"
@@ -293,7 +293,7 @@ export default function CourseInformationForm() {
         getValues={getValues}
       />
       {/* Next Button */}
-      <div className="flex justify-end gap-x-2">
+      <div className="flex  justify-end gap-x-2">
         {editCourse && (
           <button
             onClick={() => dispatch(setStep(2))}
@@ -303,12 +303,14 @@ export default function CourseInformationForm() {
             Continue Wihout Saving
           </button>
         )}
+        <div className="mb-8 md:mb-0">
         <IconBtn
           disabled={loading}
           text={!editCourse ? "Next" : "Save Changes"}
         >
           <MdNavigateNext />
         </IconBtn>
+        </div>
       </div>
     </form>
   )

@@ -24,6 +24,7 @@ import { useSelector } from 'react-redux'
 import Cart from './components/core/Dashboard/Cart'
 import AddCourse from './components/core/Dashboard/AddCourse'
 import CourseInformationForm from './components/core/Dashboard/AddCourse/CourseInformation/CourseInformationForm'
+import MobileNav from './components/core/Dashboard/MobileBottomBar'
 const App = () => {
   const { user } = useSelector((state) => state.profile)
 
@@ -118,7 +119,7 @@ const App = () => {
       }
      </Route>
      <Route path='/*' element={<Error/>}></Route>
-     <Route path='/test' element={<CourseInformationForm/>}></Route>
+     <Route path='/test' element={<MobileNav/>}></Route>
      </Routes>
     </div>
   )
